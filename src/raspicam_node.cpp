@@ -98,7 +98,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /// Interval at which we check for an failure abort during capture
 
-
+bool hflip = 0;
+bool vflip = 0;
 
 int mmal_status_to_int(MMAL_STATUS_T status);
 
@@ -152,67 +153,67 @@ static void display_valid_parameters(char *app_name);
  */
 static void get_status(RASPIVID_STATE *state)
 {
-   int temp;
-   std::string str;
-   if (!state)
-   {
-      vcos_assert(0);
-      return;
-   }
+	int temp;
+	std::string str;
+	if (!state)
+	{
+		vcos_assert(0);
+		return;
+	}
 
-   // Default everything to zero
-   memset(state, 0, sizeof(RASPIVID_STATE));
+	// Default everything to zero
+	memset(state, 0, sizeof(RASPIVID_STATE));
 
-   if (ros::param::get("~width", temp )){
+	if (ros::param::get("~width", temp )){
 	if(temp > 0 && temp <= 1920)	
 		state->width = temp;
 	else	state->width = 640;
-   }else{
-	state->width = 640;
-	ros::param::set("~width", 640);
-   }
+	}else{
+		state->width = 640;
+		ros::param::set("~width", 640);
+	}
 
-   if (ros::param::get("~height", temp )){
+	if (ros::param::get("~height", temp )){
 	if(temp > 0 && temp <= 1080)	
 		state->height = temp;
 	else	state->height = 480;
-   }else{
-	state->height = 480;
-	ros::param::set("~height", 480);
-   }
+	}else{
+		state->height = 480;
+		ros::param::set("~height", 480);
+	}
 
-   if (ros::param::get("~quality", temp )){
+	if (ros::param::get("~quality", temp )){
 	if(temp > 0 && temp <= 100)
 		state->quality = temp;
 	else	state->quality = 80;
-   }else{
-	state->quality = 80;
-	ros::param::set("~quality", 80);
-   }
+	}else{
+		state->quality = 80;
+		ros::param::set("~quality", 80);
+	}
 
-   if (ros::param::get("~framerate", temp )){
+	if (ros::param::get("~framerate", temp )){
 	if(temp > 0 && temp <= 90)
 		state->framerate = temp;
 	else	state->framerate = 30;
-   }else{
-	state->framerate = 30;
-	ros::param::set("~framerate", 30);
-   }
+	}else{
+		state->framerate = 30;
+		ros::param::set("~framerate", 30);
+	}
 
-   if (ros::param::get("~tf_prefix",  str)){
+	if (ros::param::get("~tf_prefix",  str)){
 	tf_prefix = str;
-   }else{
-	tf_prefix = "";
-	ros::param::set("~tf_prefix", "");
-   }
+	}else{
+		tf_prefix = "";
+		ros::param::set("~tf_prefix", "");
+	}
 
-   state->isInit = 0;
+	state->isInit = 0;
 
-   // Setup preview window defaults
-   //raspipreview_set_defaults(&state->preview_parameters);
+	// Setup preview window defaults
+	//raspipreview_set_defaults(&state->preview_parameters);
 
-   // Set up the camera_parameters to default
-   raspicamcontrol_set_defaults(&state->camera_parameters);
+	// Set up the camera_parameters to default
+	raspicamcontrol_set_defaults(&state->camera_parameters);
 }
 
 
@@ -688,33 +689,35 @@ int init_cam(RASPIVID_STATE *state)
 
 int start_capture(RASPIVID_STATE *state){
 	if(!(state->isInit)) init_cam(state);
+
+	raspicamcontrol_set_flips(state->camera_component, hflip, vflip);
+
 	MMAL_PORT_T *camera_video_port   = state->camera_component->output[MMAL_CAMERA_VIDEO_PORT];
 	MMAL_PORT_T *encoder_output_port = state->encoder_component->output[0];
 	ROS_INFO("Starting video capture (%d, %d, %d, %d)\n", state->width, state->height, state->quality, state->framerate);
 
-      	if (mmal_port_parameter_set_boolean(camera_video_port, MMAL_PARAMETER_CAPTURE, 1) != MMAL_SUCCESS)
-      	{
-	 	return 1;
-      	}
-      	// Send all the buffers to the video port
-      	{
-	 	int num = mmal_queue_length(state->encoder_pool->queue);
-	 	int q;
-	 	for (q=0;q<num;q++)
-	 	{
-	      	MMAL_BUFFER_HEADER_T *buffer = mmal_queue_get(state->encoder_pool->queue);
+	if (mmal_port_parameter_set_boolean(camera_video_port, MMAL_PARAMETER_CAPTURE, 1) != MMAL_SUCCESS)
+	{
+		return 1;
+	}
+	// Send all the buffers to the video port
+	{
+		int num = mmal_queue_length(state->encoder_pool->queue);
+		int q;
+		for (q=0;q<num;q++)
+		{
+			MMAL_BUFFER_HEADER_T *buffer = mmal_queue_get(state->encoder_pool->queue);
 
-	      	if (!buffer)
-	        	vcos_log_error("Unable to get a required buffer %d from pool queue", q);
+			if (!buffer)
+				vcos_log_error("Unable to get a required buffer %d from pool queue", q);
 
-	       	if (mmal_port_send_buffer(encoder_output_port, buffer)!= MMAL_SUCCESS)
-	           	vcos_log_error("Unable to send a buffer to encoder output port (%d)", q);
+			if (mmal_port_send_buffer(encoder_output_port, buffer)!= MMAL_SUCCESS)
+				vcos_log_error("Unable to send a buffer to encoder output port (%d)", q);
 
-	 	}
-      	}
+		}
+	}
 	ROS_INFO("Video capture started\n");
 	return 0;
-
 }
 
 
@@ -770,42 +773,48 @@ int close_cam(RASPIVID_STATE *state){
 	}else return 1;
 }
 
-bool serv_start_cap(	std_srvs::Empty::Request  &req,
-			std_srvs::Empty::Response &res )
+bool serv_start_cap( std_srvs::Empty::Request  &req, std_srvs::Empty::Response &res )
 {
-  start_capture(&state_srv);
-  return true;
+	start_capture(&state_srv);
+	return true;
 }
 
 
-bool serv_stop_cap(	std_srvs::Empty::Request  &req,
-			std_srvs::Empty::Response &res )
+bool serv_stop_cap(	std_srvs::Empty::Request  &req, std_srvs::Empty::Response &res )
 {
-  close_cam(&state_srv);
-  return true;
+	close_cam(&state_srv);
+	return true;
 }
-
-
 
 int main(int argc, char **argv){
-   ros::init(argc, argv, "raspicam_node");
-   ros::NodeHandle n;
-   camera_info_manager::CameraInfoManager c_info_man (n, "camera", "package://raspicam/calibrations/camera.yaml");
-   get_status(&state_srv);
 
-   if(!c_info_man.loadCameraInfo ("package://raspicam/calibrations/camera.yaml")){
-	ROS_INFO("Calibration file missing. Camera not calibrated");
-   }
-   else
-   {
-   	c_info = c_info_man.getCameraInfo ();
-	ROS_INFO("Camera successfully calibrated");
-   }
-   image_pub = n.advertise<sensor_msgs::CompressedImage>("camera/image/compressed", 1);
-   camera_info_pub = n.advertise<sensor_msgs::CameraInfo>("camera/camera_info", 1);
-   ros::ServiceServer start_cam = n.advertiseService("camera/start_capture", serv_start_cap);
-   ros::ServiceServer stop_cam = n.advertiseService("camera/stop_capture", serv_stop_cap);
-   ros::spin();
-   close_cam(&state_srv);
-   return 0;
+	ros::init(argc, argv, "raspicam_node");
+
+	ros::NodeHandle pn("~");
+	ros::NodeHandle n;
+
+	camera_info_manager::CameraInfoManager c_info_man (n, "camera", "package://raspicam/calibrations/camera.yaml");
+	get_status(&state_srv);
+
+	//TODO:replace this with raspicamcontrol_parse_cmdline()?
+	pn.param<bool>("hflip", hflip, 0);
+	ROS_INFO("hflip: %d\n", hflip);
+	pn.param<bool>("vflip", vflip, 0);
+	ROS_INFO("vflip: %d\n", vflip);
+	state_srv.camera_parameters.hflip = hflip;
+	state_srv.camera_parameters.vflip = vflip;
+
+	if(!c_info_man.loadCameraInfo ("package://raspicam/calibrations/camera.yaml")){
+		ROS_INFO("Calibration file missing. Camera not calibrated");
+	}else{
+		c_info = c_info_man.getCameraInfo ();
+		ROS_INFO("Camera successfully calibrated");
+	}
+	image_pub = n.advertise<sensor_msgs::CompressedImage>("camera/image/compressed", 1);
+	camera_info_pub = n.advertise<sensor_msgs::CameraInfo>("camera/camera_info", 1);
+	ros::ServiceServer start_cam = n.advertiseService("camera/start_capture", serv_start_cap);
+	ros::ServiceServer stop_cam = n.advertiseService("camera/stop_capture", serv_stop_cap);
+	ros::spin();
+	close_cam(&state_srv);
+	return 0;
 }
