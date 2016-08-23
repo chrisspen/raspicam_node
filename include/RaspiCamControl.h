@@ -5,12 +5,12 @@ All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
-    * Redistributions of source code must retain the above copyright
+ * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright
+ * Redistributions in binary form must reproduce the above copyright
       notice, this list of conditions and the following disclaimer in the
       documentation and/or other materials provided with the distribution.
-    * Neither the name of the copyright holder nor the
+ * Neither the name of the copyright holder nor the
       names of its contributors may be used to endorse or promote products
       derived from this software without specific prior written permission.
 
@@ -24,7 +24,7 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 #ifndef RASPICAMCONTROL_H_
 #define RASPICAMCONTROL_H_
@@ -90,45 +90,45 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // There isn't actually a MMAL structure for the following, so make one
 typedef struct
 {
-   int enable;       /// Turn colourFX on or off
-   int u,v;          /// U and V to use
+	int enable;       /// Turn colourFX on or off
+	int u,v;          /// U and V to use
 } MMAL_PARAM_COLOURFX_T;
 
 typedef struct
 {
-   int enable;
-   int width,height;
-   int quality;
+	int enable;
+	int width,height;
+	int quality;
 } MMAL_PARAM_THUMBNAIL_CONFIG_T;
 
 typedef struct
 {
-   double x;
-   double y;
-   double w;
-   double h;
+	double x;
+	double y;
+	double w;
+	double h;
 } PARAM_FLOAT_RECT_T;
 
 /// struct contain camera settings
 typedef struct
 {
-   int sharpness;             /// -100 to 100
-   int contrast;              /// -100 to 100
-   int brightness;            ///  0 to 100
-   int saturation;            ///  -100 to 100
-   int ISO;                   ///  TODO : what range?
-   int videoStabilisation;    /// 0 or 1 (false or true)
-   int exposureCompensation;  /// -10 to +10 ?
-   MMAL_PARAM_EXPOSUREMODE_T exposureMode;
-   MMAL_PARAM_EXPOSUREMETERINGMODE_T exposureMeterMode;
-   MMAL_PARAM_AWBMODE_T awbMode;
-   MMAL_PARAM_IMAGEFX_T imageEffect;
-   MMAL_PARAMETER_IMAGEFX_PARAMETERS_T imageEffectsParameters;
-   MMAL_PARAM_COLOURFX_T colourEffects;
-   int rotation;              /// 0-359
-   int hflip;                 /// 0 or 1
-   int vflip;                 /// 0 or 1
-   PARAM_FLOAT_RECT_T  roi;   /// region of interest to use on the sensor. Normalised [0,1] values in the rect
+	int sharpness;             /// -100 to 100
+	int contrast;              /// -100 to 100
+	int brightness;            ///  0 to 100
+	int saturation;            ///  -100 to 100
+	int ISO;                   ///  TODO : what range?
+	int videoStabilisation;    /// 0 or 1 (false or true)
+	int exposureCompensation;  /// -10 to +10 ?
+	MMAL_PARAM_EXPOSUREMODE_T exposureMode;
+	MMAL_PARAM_EXPOSUREMETERINGMODE_T exposureMeterMode;
+	MMAL_PARAM_AWBMODE_T awbMode;
+	MMAL_PARAM_IMAGEFX_T imageEffect;
+	MMAL_PARAMETER_IMAGEFX_PARAMETERS_T imageEffectsParameters;
+	MMAL_PARAM_COLOURFX_T colourEffects;
+	int rotation;              /// 0-359
+	int hflip;                 /// 0 or 1
+	int vflip;                 /// 0 or 1
+	PARAM_FLOAT_RECT_T  roi;   /// region of interest to use on the sensor. Normalised [0,1] values in the rect
 } RASPICAM_CAMERA_PARAMETERS;
 
 
