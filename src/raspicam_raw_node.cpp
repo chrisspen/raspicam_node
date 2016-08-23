@@ -77,7 +77,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "RaspiCamControl.h"
 #include "RaspiCLI.h"
 
-
 #include <semaphore.h>
 
 /// Camera number to use - we only have one camera, indexed from 0.
@@ -95,11 +94,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /// Video render needs at least 2 buffers.
 #define VIDEO_OUTPUT_BUFFERS_NUM 3
 
-
 /// Interval at which we check for an failure abort during capture
 
-bool hflip = 0;
-bool vflip = 0;
+//bool hflip = 0;
+//bool vflip = 0;
+bool auto_start = 0;
 
 int mmal_status_to_int(MMAL_STATUS_T status);
 
@@ -142,9 +141,6 @@ typedef struct
 } PORT_USERDATA;
 
 static void display_valid_parameters(char *app_name);
-
-
-
 
 /**
  * Assign a default set of parameters to the state passed in
@@ -207,6 +203,29 @@ static void get_status(RASPIVID_STATE *state)
         ros::param::set("~tf_prefix", "");
     }
 
+    ros::param::get("~hflip", temp);
+    if(temp >= 0 && temp <= 1){
+		state->camera_parameters.hflip = temp;
+    }else{
+		state->camera_parameters.hflip = 0;
+        ros::param::set("~hflip", 0);
+    }
+
+    ros::param::get("~vflip", temp);
+    if(temp >= 0 && temp <= 1){
+		state->camera_parameters.vflip = temp;
+    }else{
+		state->camera_parameters.vflip = 0;
+        ros::param::set("~vflip", 0);
+    }
+
+    ros::param::get("~start", temp);
+    if(temp >= 0 && temp <= 1){
+    	auto_start = temp;
+    }else{
+        ros::param::set("~start", 0);
+    }
+
     state->isInit = 0;
 
     // Setup preview window defaults
@@ -215,11 +234,6 @@ static void get_status(RASPIVID_STATE *state)
     // Set up the camera_parameters to default
     raspicamcontrol_set_defaults(&state->camera_parameters);
 }
-
-
-
-
-
 
 /**
  *  buffer header callback function for encoder
@@ -301,8 +315,6 @@ static void camera_buffer_callback(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buff
     ROS_INFO("oups");
   }
 }
-
-
 
 /**
  * Create the camera component, set up its ports
@@ -714,11 +726,10 @@ int init_cam(RASPIVID_STATE *state)
    return 0;
 }
 
-
 int start_capture(RASPIVID_STATE *state){
     if(!(state->isInit)) init_cam(state);
 
-    raspicamcontrol_set_flips(state->camera_component, hflip, vflip);
+    raspicamcontrol_set_flips(state->camera_component, state->camera_parameters.hflip, state->camera_parameters.vflip);
 
     MMAL_PORT_T *camera_video_port   = state->camera_component->output[MMAL_CAMERA_VIDEO_PORT];
     //MMAL_PORT_T *encoder_output_port = state->encoder_component->output[0];
@@ -749,8 +760,6 @@ int start_capture(RASPIVID_STATE *state){
     return 0;
 
 }
-
-
 
 int close_cam(RASPIVID_STATE *state){
     if(state->isInit){
@@ -810,15 +819,12 @@ bool serv_start_cap(    std_srvs::Empty::Request  &req,
   return true;
 }
 
-
 bool serv_stop_cap(    std_srvs::Empty::Request  &req,
             std_srvs::Empty::Response &res )
 {
   close_cam(&state_srv);
   return true;
 }
-
-
 
 int main(int argc, char **argv){
 
@@ -831,12 +837,16 @@ int main(int argc, char **argv){
     get_status(&state_srv);
 
     //TODO:replace this with raspicamcontrol_parse_cmdline()?
-    pn.param<bool>("hflip", hflip, 0);
-    ROS_INFO("hflip: %d\n", hflip);
-    pn.param<bool>("vflip", vflip, 0);
-    ROS_INFO("vflip: %d\n", vflip);
-    state_srv.camera_parameters.hflip = hflip;
-    state_srv.camera_parameters.vflip = vflip;
+//    pn.param<bool>("hflip", hflip, 0);
+//    ROS_INFO("hflip: %d\n", hflip);
+//    pn.param<bool>("vflip", vflip, 0);
+//    ROS_INFO("vflip: %d\n", vflip);
+//    state_srv.camera_parameters.hflip = hflip;
+//    state_srv.camera_parameters.vflip = vflip;
+
+    if(auto_start){
+    	start_capture(&state_srv);
+    }
 
     if(!c_info_man.loadCameraInfo ("package://raspicam/calibrations/camera.yaml")){
         ROS_INFO("Calibration file missing. Camera not calibrated");
