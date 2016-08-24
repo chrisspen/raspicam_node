@@ -843,7 +843,7 @@ int main(int argc, char **argv){
 	//ros::NodeHandle pn("~");
 	ros::NodeHandle n;
 
-	camera_info_manager::CameraInfoManager c_info_man (n, "camera", "package://raspicam/calibrations/camera.yaml");
+	camera_info_manager::CameraInfoManager c_info_man(n, "camera", "package://raspicam/calibrations/camera.yaml");
 	get_status(&state_srv);
 
 	//TODO:replace this with raspicamcontrol_parse_cmdline()?
@@ -857,20 +857,22 @@ int main(int argc, char **argv){
 	ROS_INFO("hflip: %d\n", hflip);
 	ROS_INFO("vflip: %d\n", vflip);
 	ROS_INFO("start: %d\n", auto_start);
-	if(auto_start){
-		start_capture(&state_srv);
-	}
 
-	if(!c_info_man.loadCameraInfo ("package://raspicam/calibrations/camera.yaml")){
+	if(!c_info_man.loadCameraInfo("package://raspicam/calibrations/camera.yaml")){
 		ROS_INFO("Calibration file missing. Camera not calibrated");
 	}else{
-		c_info = c_info_man.getCameraInfo ();
+		c_info = c_info_man.getCameraInfo();
 		ROS_INFO("Camera successfully calibrated");
 	}
 	image_pub = n.advertise<sensor_msgs::Image>("camera/image", 1);
 	camera_info_pub = n.advertise<sensor_msgs::CameraInfo>("camera/camera_info", 1);
 	ros::ServiceServer start_cam = n.advertiseService("camera/start_capture", serv_start_cap);
 	ros::ServiceServer stop_cam = n.advertiseService("camera/stop_capture", serv_stop_cap);
+	
+	if(auto_start){
+		start_capture(&state_srv);
+	}
+	
 	ros::spin();
 	close_cam(&state_srv);
 	return 0;
