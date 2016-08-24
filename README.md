@@ -1,10 +1,9 @@
 raspicam_node
 =============
 
-Groovy ROS node for camera module of Raspberry Pi
+ROS node for streaming data from the Raspberry Pi camera module.
 
 Now works at 90 fps thanks to the new firmware provided by the Raspberry Pi foundation
-
 
 
 Requirements
@@ -15,15 +14,7 @@ Requirements
 
 	- a camera module 
 
-
-
-
-
 Get Raspbian http://elinux.org/RPi_Easy_SD_Card_Setup
-
-
-
-
 
 Enable Camera and expand FS http://www.raspberrypi.org/archives/3890
 
@@ -33,14 +24,9 @@ Enable Camera and expand FS http://www.raspberrypi.org/archives/3890
 	sudo apt-get upgrade
 
 
-Get ROS Groovy from http://www.ros.org/wiki/groovy/Installation/Raspbian
-
-
+Get ROS from http://www.ros.org/wiki/groovy/Installation/Raspbian. These instructions are for Groovy, but this has been tested with Kinetic. Change the release name to match your ROS version.
 
 	sudo apt-get install ros-groovy-image-transport ros-groovy-image-transport-plugins ros-groovy-image-transport-plugins ros-groovy-camera-info-manager
-
-
-
 
 	git clone https://github.com/raspberrypi/userland.git /home/pi/userland
 
@@ -48,13 +34,9 @@ Get ROS Groovy from http://www.ros.org/wiki/groovy/Installation/Raspbian
 
 	mkdir catkin_ws
 
-
-
 	source /opt/ros/groovy/setup.bash
 
 	export ROS_WORKSPACE=/home/pi/catkin_ws
-
-
 
 	cd /home/pi/catkin_ws
 
@@ -70,11 +52,9 @@ Get ROS Groovy from http://www.ros.org/wiki/groovy/Installation/Raspbian
 
 	source devel/setup.bash
 
-then you can run the node using
+then you can run the node using:
 
-rosrun raspicam raspicam_node
-
-
+    rosrun raspicam raspicam_node
 
 Topic:
 
