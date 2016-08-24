@@ -11,7 +11,7 @@
   <!-- One license tag required, multiple allowed, one license per tag -->
   <!-- Commonly used license strings: -->
   <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
-  <license>TODO</license>
+  <license>MIT</license>
 
 
   <!-- Url tags are optional, but mutiple are allowed, one per tag -->
@@ -19,11 +19,6 @@
   <!-- Example: -->
   <url type="website">http://ros.org/wiki/raspicam</url>
   <url type="repository">https://github.com/chrisspen/raspicam_node</url>
-
-  <!-- Author tags are optional, mutiple are allowed, one per tag -->
-  <!-- Authors do not have to be maintianers, but could be -->
-  <!-- Example: -->
-  <author email="">James Hughes</author>
 
 
   <!-- The *_depend tags are used to specify dependencies -->

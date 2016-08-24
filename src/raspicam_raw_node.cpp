@@ -96,8 +96,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /// Interval at which we check for an failure abort during capture
 
-//bool hflip = 0;
-//bool vflip = 0;
+bool hflip = 0;
+bool vflip = 0;
 bool auto_start = 0;
 
 int mmal_status_to_int(MMAL_STATUS_T status);
@@ -163,7 +163,8 @@ static void get_status(RASPIVID_STATE *state)
 	if (ros::param::get("~width", temp )){
 		if(temp > 0 && temp <= 1920)
 			state->width = temp;
-		else    state->width = 640;
+		else
+			state->width = 640;
 	}else{
 		state->width = 640;
 		ros::param::set("~width", 640);
@@ -172,7 +173,8 @@ static void get_status(RASPIVID_STATE *state)
 	if (ros::param::get("~height", temp )){
 		if(temp > 0 && temp <= 1080)
 			state->height = temp;
-		else    state->height = 480;
+		else
+		    state->height = 480;
 	}else{
 		state->height = 480;
 		ros::param::set("~height", 480);
@@ -181,7 +183,8 @@ static void get_status(RASPIVID_STATE *state)
 	if (ros::param::get("~quality", temp )){
 		if(temp > 0 && temp <= 100)
 			state->quality = temp;
-		else    state->quality = 80;
+		else
+		    state->quality = 80;
 	}else{
 		state->quality = 80;
 		ros::param::set("~quality", 80);
@@ -190,7 +193,8 @@ static void get_status(RASPIVID_STATE *state)
 	if (ros::param::get("~framerate", temp )){
 		if(temp > 0 && temp <= 90)
 			state->framerate = temp;
-		else    state->framerate = 30;
+		else
+		    state->framerate = 30;
 	}else{
 		state->framerate = 30;
 		ros::param::set("~framerate", 30);
@@ -204,22 +208,29 @@ static void get_status(RASPIVID_STATE *state)
 	}
 
 	ros::param::get("~hflip", temp);
+	ROS_INFO("hflip_raw: %d\n", temp);
 	if(temp >= 0 && temp <= 1){
-		state->camera_parameters.hflip = temp;
+		//state->camera_parameters.hflip = temp;
+		//ROS_INFO("set hflip to: %d\n", state->camera_parameters.hflip);
+		hflip = temp;
 	}else{
-		state->camera_parameters.hflip = 0;
+		//state->camera_parameters.hflip = 0;
 		ros::param::set("~hflip", 0);
 	}
 
 	ros::param::get("~vflip", temp);
+	ROS_INFO("vflip_raw: %d\n", temp);
 	if(temp >= 0 && temp <= 1){
-		state->camera_parameters.vflip = temp;
+		//state->camera_parameters.vflip = temp;
+		//ROS_INFO("set vflip to: %d\n", state->camera_parameters.vflip);
+		vflip = temp;
 	}else{
-		state->camera_parameters.vflip = 0;
+		//state->camera_parameters.vflip = 0;
 		ros::param::set("~vflip", 0);
 	}
 
 	ros::param::get("~start", temp);
+	ROS_INFO("auto_start_raw: %d\n", temp);
 	if(temp >= 0 && temp <= 1){
 		auto_start = temp;
 	}else{
@@ -729,7 +740,8 @@ int init_cam(RASPIVID_STATE *state)
 int start_capture(RASPIVID_STATE *state){
 	if(!(state->isInit)) init_cam(state);
 
-	raspicamcontrol_set_flips(state->camera_component, state->camera_parameters.hflip, state->camera_parameters.vflip);
+	//raspicamcontrol_set_flips(state->camera_component, state->camera_parameters.hflip, state->camera_parameters.vflip);
+	raspicamcontrol_set_flips(state->camera_component, hflip, vflip);
 
 	MMAL_PORT_T *camera_video_port   = state->camera_component->output[MMAL_CAMERA_VIDEO_PORT];
 	//MMAL_PORT_T *encoder_output_port = state->encoder_component->output[0];
@@ -812,15 +824,13 @@ int close_cam(RASPIVID_STATE *state){
 	}else return 1;
 }
 
-bool serv_start_cap(    std_srvs::Empty::Request  &req,
-		std_srvs::Empty::Response &res )
+bool serv_start_cap(std_srvs::Empty::Request  &req, std_srvs::Empty::Response &res)
 {
 	start_capture(&state_srv);
 	return true;
 }
 
-bool serv_stop_cap(    std_srvs::Empty::Request  &req,
-		std_srvs::Empty::Response &res )
+bool serv_stop_cap(std_srvs::Empty::Request  &req, std_srvs::Empty::Response &res)
 {
 	close_cam(&state_srv);
 	return true;
@@ -830,7 +840,7 @@ int main(int argc, char **argv){
 
 	ros::init(argc, argv, "raspicam_raw_node");
 
-	ros::NodeHandle pn("~");
+	//ros::NodeHandle pn("~");
 	ros::NodeHandle n;
 
 	camera_info_manager::CameraInfoManager c_info_man (n, "camera", "package://raspicam/calibrations/camera.yaml");
@@ -844,6 +854,9 @@ int main(int argc, char **argv){
 	//    state_srv.camera_parameters.hflip = hflip;
 	//    state_srv.camera_parameters.vflip = vflip;
 
+	ROS_INFO("hflip: %d\n", hflip);
+	ROS_INFO("vflip: %d\n", vflip);
+	ROS_INFO("start: %d\n", auto_start);
 	if(auto_start){
 		start_capture(&state_srv);
 	}

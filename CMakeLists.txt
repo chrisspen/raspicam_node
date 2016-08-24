@@ -15,6 +15,9 @@ find_package(catkin REQUIRED COMPONENTS compressed_image_transport roscpp std_ms
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
 # catkin_python_setup()
 
+set(CMAKE_C_FLAGS "-Wno-write-strings ${CMAKE_C_FLAGS}")
+set(CMAKE_CXX_FLAGS "-std=c++11 -Wno-write-strings ${CMAKE_C_FLAGS}")
+
 #######################################
 ## Declare ROS messages and services ##
 #######################################
