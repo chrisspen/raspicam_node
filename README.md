@@ -26,7 +26,7 @@ Enable Camera and expand FS http://www.raspberrypi.org/archives/3890
 
 Get ROS from http://www.ros.org/wiki/groovy/Installation/Raspbian. These instructions are for Groovy, but this has been tested with Kinetic. Change the release name to match your ROS version.
 
-	sudo apt-get install ros-groovy-image-transport ros-groovy-image-transport-plugins ros-groovy-image-transport-plugins ros-groovy-camera-info-manager
+	sudo apt-get install ros-kinetic-image-transport ros-kinetic-image-transport-plugins ros-kinetic-image-transport-plugins ros-kinetic-camera-info-manager ros-kinetic-compressed-image-transport ros-kinetic-roscpp
 
 	git clone https://github.com/raspberrypi/userland.git /home/pi/userland
 
@@ -34,7 +34,7 @@ Get ROS from http://www.ros.org/wiki/groovy/Installation/Raspbian. These instruc
 
 	mkdir catkin_ws
 
-	source /opt/ros/groovy/setup.bash
+	source /opt/ros/kinetic/setup.bash
 
 	export ROS_WORKSPACE=/home/pi/catkin_ws
 
