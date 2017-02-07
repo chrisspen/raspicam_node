@@ -22,7 +22,7 @@ install:
   - rosdep install --from-paths ./ -i -y --rosdistro $CI_ROS_DISTRO
 script:
   # Check code formatting.
-  - pip install cpplint
+  - sudo pip install cpplint
   - ./checkcpp.sh
 
   - source /opt/ros/$CI_ROS_DISTRO/setup.bash
