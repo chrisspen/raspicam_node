@@ -5,7 +5,6 @@ ROS node for streaming data from the Raspberry Pi camera module.
 
 Now works at 90 fps thanks to the new firmware provided by the Raspberry Pi foundation
 
-
 Requirements
 
 	- working ROS core and network
@@ -150,6 +149,3 @@ TO DO List :
 	- reenable vc_gencmd
 	
 	- check raspicam_raw_node for bugs
-
-
-
